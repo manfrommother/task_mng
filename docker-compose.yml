@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: ivan
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: taskdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
