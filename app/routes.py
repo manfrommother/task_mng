@@ -12,6 +12,9 @@ def get_db():
     finally:
         db.clouse()
 
+@task_router.get('/')
+def read_root():
+    return {'message': 'Welcome to Task Manager API'}
 #CRUD операции
 
 def create_task(title: str, description: str, db: Session=Depends(get_db)):
