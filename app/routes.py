@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .models import Task
-from .database import SessionLocal, init_db
+from .database import SessionLocal
+from app.schemas import TaskCreate
 
 task_router = APIRouter()
 
@@ -10,19 +11,21 @@ def get_db():
     try:
         yield db
     finally:
-        db.clouse()
+        db.close()
 
 @task_router.get('/')
 def read_root():
     return {'message': 'Welcome to Task Manager API'}
 #CRUD операции
 
-def create_task(title: str, description: str, db: Session=Depends(get_db)):
-    task = Task(title=title, description=description)
-    db.add(task)
+
+@task_router.post('/tasks/')
+def create_task(task: TaskCreate, db: Session = Depends(get_db)):
+    new_task = Task(title=task.title, description=task.description)
+    db.add(new_task)
     db.commit()
-    db.refresh(task)
-    return task
+    db.refresh(new_task)
+    return new_task
 
 @task_router.get('/tasks/')
 def read_tasks(skip: int=0, limit: int=10, db: Session=Depends(get_db)):
